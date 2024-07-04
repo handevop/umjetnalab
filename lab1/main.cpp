@@ -21,11 +21,8 @@ struct Gradovi{
 void read_args(int argc, char* argv[], string& algoritam, string& file_udaljenosti, string& file_heristika);
 void read_udaljenosti(const string& file_udaljenosti, string& poc, vector<string>& end, vector<Gradovi>& udaljenosti);
 void parse_line(string& line, int iterator_grad, string& naziv_mjesto, vector<string>& end, vector<Gradovi>& udaljenosti);
-
-template<typename T>
-void ispis(T varijabla){
-    cout<<"Ispis varijable: "<<varijabla<<endl;
-}
+void print_udaljenosti(vector<Gradovi>& udaljenosti);
+void bfs(const string& poc,const vector<string>& end, vector<Gradovi>& udaljenosti);
 
 void read_args(int argc, char* argv[], string& algoritam, string& file_udaljenosti, string& file_heristika){
     algoritam = "";
@@ -84,11 +81,38 @@ void parse_line(string& line, int iterator_grad, string& naziv_mjesto, vector<st
         naziv_mjesto = line.substr(0, poz_dvotocka);
         gradovi.naziv_grada = naziv_mjesto;
         if (line.length() > poz_dvotocka + 1){
+            line = line.substr(poz_dvotocka + 1);
 
+            while(true){
+                Grad grad;
+                auto poz_zarez = line.find(',');
+                if (poz_zarez != string::npos){
+                    grad.naziv_grada = line.substr(0, poz_zarez);
+                    line = line.substr(poz_zarez + 1);
 
+                    auto poz_razmak = line.find(' ');
+                    if (poz_razmak != string::npos){
+                        grad.tezina_grada = stoi(line.substr(0, poz_razmak));
+                        gradovi.udaljenosti.push_back(grad);
 
+                        if (line.length() > poz_razmak + 1){
+                            line = line.substr(poz_razmak + 1);
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                    else{
+                        grad.tezina_grada = stoi(line);
+                        gradovi.udaljenosti.push_back(grad);
+                        line = "";
+                        break;
+                    }
+                }
+            }
         }
 
+        udaljenosti.push_back(gradovi);
     }
     else{
         if (iterator_grad == 0){
@@ -113,6 +137,20 @@ void parse_line(string& line, int iterator_grad, string& naziv_mjesto, vector<st
 
 }
 
+void print_udaljenosti(vector<Gradovi>& udaljenosti){
+    for (auto & i : udaljenosti){
+        cout<<"Jedan zapis: "<<i.naziv_grada<<endl<<"Gradovi djeca: ";
+        for (auto & j : i.udaljenosti){
+            cout<<j.naziv_grada<<" "<<j.tezina_grada<<" ";
+        }
+        cout<<endl;
+    }
+}
+
+void bfs(const string& poc,const vector<string>& end, vector<Gradovi>& udaljenosti){
+
+}
+
 int main(int argc, char* argv[]) {
     string algoritam;
     string file_udaljenosti;
@@ -123,7 +161,7 @@ int main(int argc, char* argv[]) {
 
     read_args(argc, argv, algoritam, file_udaljenosti, file_heuristika);
     read_udaljenosti(file_udaljenosti, pocetni_grad, ciljni_gradovi, udaljenosti);
-
+    //print_udaljenosti(udaljenosti);
 
     return 0;
 }

@@ -23,7 +23,7 @@ void read_udaljenosti(const string& file_udaljenosti, string& poc, vector<string
 void parse_line(string& line, int iterator_grad, string& naziv_mjesta, vector<string>& end, vector<Gradovi>& udaljenosti);
 void print_udaljenosti(vector<Gradovi>& udaljenosti);
 void bfs(string& poc, vector<string>& end, vector<Gradovi>& udaljenosti, map<string, int>& it_grada,
-         bool& found_solution, int& states_visited, int& path_length, double& total_cost, vector<string>& path);
+         bool& found_solution, int& states_visited, int& path_length, double& total_cost, deque<string>& path);
 
 void read_args(int argc, char* argv[], string& algoritam, string& file_udaljenosti, string& file_heristika){
     algoritam = "";
@@ -82,8 +82,8 @@ void parse_line(string& line, int iterator_grad, string& naziv_mjesta, vector<st
     if (poz_dvotocka != string::npos && iterator_grad >= 2){
         naziv_mjesta = line.substr(0, poz_dvotocka);
         gradovi.naziv_grada = naziv_mjesta;
-        if (line.length() > poz_dvotocka + 1){
-            line = line.substr(poz_dvotocka + 1);
+        if (line.length() > poz_dvotocka + 2){
+            line = line.substr(poz_dvotocka + 2);
 
             while(true){
                 Grad grad;
@@ -113,7 +113,9 @@ void parse_line(string& line, int iterator_grad, string& naziv_mjesta, vector<st
                 }
             }
         }
-
+        sort(gradovi.udaljenosti.begin(), gradovi.udaljenosti.end(), [](const Grad& g1, const Grad& g2){
+           return g1.naziv_grada < g2.naziv_grada;
+        });
         udaljenosti.push_back(gradovi);
     }
     else{
@@ -151,22 +153,36 @@ void print_udaljenosti(vector<Gradovi>& udaljenosti){
 }
 
 void bfs(string& poc, vector<string>& end, vector<Gradovi>& udaljenosti, map<string, int>& it_grada,
-         bool& found_solution, int& states_visited, int& path_length, double& total_cost, vector<string>& path){
+         bool& found_solution, int& states_visited, int& path_length, double& total_cost, deque<string>& path){
     deque<Grad> otvorena_lista;
-    vector<Grad> zatvorena_lista;
+    deque<Grad> zatvorena_lista;
 
     Grad tmp_grad(poc);
+    tmp_grad.id_roditelja = -1; // korijenu postavljamo da je roditelj -1
     otvorena_lista.push_back(tmp_grad);
 
     while(!otvorena_lista.empty()){
         Grad trenutni_grad = otvorena_lista.front();
-        for (const auto & i : end){
-            if (i == trenutni_grad.naziv_grada){
+        for (auto & i : end){
+            if ((string)(i) == (string)(trenutni_grad.naziv_grada)){
                 found_solution = true;
                 states_visited = (int)zatvorena_lista.size() + 1;
+                total_cost = trenutni_grad.tezina_grada;
+
+                Grad tr_put = trenutni_grad;
+                while(tr_put.id_roditelja != -1){
+                    path.push_front(tr_put.naziv_grada);
+                    int sljedeci = tr_put.id_roditelja;
+                    tr_put = zatvorena_lista[sljedeci];
+                }
+                path.push_front(tr_put.naziv_grada);
+                path_length = (int)path.size();
+
                 break;
             }
         }
+
+        if (found_solution) break;
 
         zatvorena_lista.push_back(otvorena_lista.front());
         otvorena_lista.pop_front();
@@ -175,11 +191,12 @@ void bfs(string& poc, vector<string>& end, vector<Gradovi>& udaljenosti, map<str
         for (auto & i : udaljenosti[it_trenutnog_grada].udaljenosti){
             Grad tmp;
             tmp.naziv_grada = i.naziv_grada;
-            tmp.tezina_grada = tmp.tezina_grada + i.tezina_grada;
+            tmp.tezina_grada = trenutni_grad.tezina_grada + i.tezina_grada;
             tmp.naziv_roditelj = trenutni_grad.naziv_grada;
             tmp.id_roditelja = (int)(zatvorena_lista.size()) - 1;
 
             bool bio = false;
+
             for (auto & j : zatvorena_lista){
                 if(j.naziv_grada == tmp.naziv_grada){
                     bio = true;
@@ -197,10 +214,6 @@ void bfs(string& poc, vector<string>& end, vector<Gradovi>& udaljenosti, map<str
             if (!bio) otvorena_lista.push_back(tmp);
         }
 
-        sort(otvorena_lista.begin(), otvorena_lista.end(), [](const Grad& g1, const Grad& g2){
-            return g1.tezina_grada < g2.tezina_grada;
-        });
-
     }
 }
 
@@ -216,7 +229,7 @@ int main(int argc, char* argv[]) {
     int states_visited = 0;
     int path_length = 0;
     double total_cost = 0;
-    vector<string> path;
+    deque<string> path;
 
     read_args(argc, argv, algoritam, file_udaljenosti, file_heuristika);
     read_udaljenosti(file_udaljenosti, pocetni_grad, ciljni_gradovi, udaljenosti, it_grada);
@@ -227,8 +240,17 @@ int main(int argc, char* argv[]) {
         cout<<"# BFS\n";
     }
 
+
+
     cout<<"[FOUND_SOLUTION]: "<<(found_solution? "yes": "no")<<"\n";
     cout<<"[STATES_VISITED]: "<< states_visited<<"\n";
+    cout<<"[PATH_LENGTH]: "<<path_length<<"\n";
+    printf("[TOTAL_COST]: %.1f\n", total_cost);
+    cout<<"[PATH]: ";
+    for (int i = 0; i < path.size(); i++){
+        cout<<path[i];
+        if (i != path.size() - 1) cout<<" => ";
+    }
 
 
     return 0;

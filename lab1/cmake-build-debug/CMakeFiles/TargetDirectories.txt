@@ -1,0 +1,3 @@
+C:/Users/anton/Desktop/Projekti/UmjetnaProjekti/umjetnalab/lab1/cmake-build-debug/CMakeFiles/lab1.dir
+C:/Users/anton/Desktop/Projekti/UmjetnaProjekti/umjetnalab/lab1/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/anton/Desktop/Projekti/UmjetnaProjekti/umjetnalab/lab1/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -1,3 +1,13 @@
 # ninja log v5
 1	399	7418004319748524	CMakeFiles/lab1.dir/main.cpp.obj	1f3cc61a310aaad
 401	528	7418004321005157	lab1.exe	cecf25ba5ecbc59e
+3	1643	7418023236709488	CMakeFiles/lab1.dir/main.cpp.obj	1f3cc61a310aaad
+1645	1757	7418023237823232	lab1.exe	cecf25ba5ecbc59e
+3	1622	7418023401871340	CMakeFiles/lab1.dir/main.cpp.obj	1f3cc61a310aaad
+1623	1720	7418023402837292	lab1.exe	cecf25ba5ecbc59e
+3	1737	7418041756208828	CMakeFiles/lab1.dir/main.cpp.obj	1f3cc61a310aaad
+1737	1858	7418041757396526	lab1.exe	cecf25ba5ecbc59e
+3	1913	7418041912587214	CMakeFiles/lab1.dir/main.cpp.obj	1f3cc61a310aaad
+1913	2015	7418041913622415	lab1.exe	cecf25ba5ecbc59e
+3	1694	7418044402051624	CMakeFiles/lab1.dir/main.cpp.obj	1f3cc61a310aaad
+1695	1799	7418044403075384	lab1.exe	cecf25ba5ecbc59e

@@ -43,6 +43,7 @@ void ucs(string& poc, vector<string>& end, vector<Gradovi>& udaljenosti, map<str
 void astar(string& poc, vector<string>& end, vector<Gradovi>& udaljenosti, map<string, int>& it_grada, map<string, double> &heuristika,
            bool& found_solution, int& states_visited, int& path_length, double& total_cost, deque<string>& path);
 void print_solution(bool& found_solution, int& states_visited, int& path_length, double& total_cost, deque<string>& path);
+void dijkstra(string& poc, vector<string>& end, vector<Gradovi>& udaljenosti, map<string, int>& it_grada, map<string, int>& prave_udaljenosti);
 
 
 
@@ -444,6 +445,75 @@ void print_solution(bool& found_solution, int& states_visited, int& path_length,
     }
 }
 
+void dijkstra(vector<string>& end, vector<Gradovi>& udaljenosti, map<string, int>& it_grada, map<string, double>& prave_udaljenosti){
+
+    for (int t = 0; t < udaljenosti.size(); t++) {
+        deque<Grad> otvorena_lista;
+        deque<Grad> zatvorena_lista;
+
+        string poc = udaljenosti[t].naziv_grada;
+        bool nemoze = false;
+        for (auto &j: zatvorena_lista) {
+            if (j.naziv_grada == poc) {
+                nemoze = true;
+                break;
+            }
+        }
+
+        if (nemoze) continue;
+
+        Grad tmp_grad(poc);
+        tmp_grad.id_roditelja = -1; // korijenu postavljamo da je roditelj -1
+        otvorena_lista.push_back(tmp_grad);
+
+        while (!otvorena_lista.empty()) {
+            Grad trenutni_grad = otvorena_lista.front();
+
+            bool bio_f = false;
+
+            for (auto &j: zatvorena_lista) {
+                if (j.naziv_grada == trenutni_grad.naziv_grada) {
+                    bio_f = true;
+                    otvorena_lista.pop_front();
+                    break;
+                }
+            }
+
+            if (bio_f) continue;
+            bool found_solution = false;
+
+            for (auto & i : end){
+                if ((string)(i) == (string)(trenutni_grad.naziv_grada)){
+                    prave_udaljenosti[poc] = trenutni_grad.tezina_grada;
+                    found_solution = true;
+                    break;
+                }
+            }
+
+            if (found_solution) break;
+
+            zatvorena_lista.push_back(otvorena_lista.front());
+            otvorena_lista.pop_front();
+
+            int it_trenutnog_grada = it_grada[trenutni_grad.naziv_grada];
+            for (auto &i: udaljenosti[it_trenutnog_grada].udaljenosti) {
+                Grad tmp;
+                tmp.naziv_grada = i.naziv_grada;
+                tmp.tezina_grada = trenutni_grad.tezina_grada + i.tezina_grada;
+                tmp.naziv_roditelj = trenutni_grad.naziv_grada;
+                tmp.id_roditelja = (int) (zatvorena_lista.size()) - 1;
+
+                otvorena_lista.push_back(tmp);
+            }
+
+            sort(otvorena_lista.begin(), otvorena_lista.end(), [](const Grad& g1, const Grad& g2){
+                return g1.tezina_grada < g2.tezina_grada;
+            });
+        }
+    }
+
+}
+
 void check_if_optimistic(){
 
 }
@@ -470,6 +540,7 @@ int main(int argc, char* argv[]) {
     string file_optimistic;
     bool check_consistent = false;
     string file_consistent;
+    map<string, double> ukupne_udaljenosti;
 
     read_args(argc, argv, algoritam, file_udaljenosti, file_heuristika, check_optimistic, check_consistent);
     read_udaljenosti(file_udaljenosti, pocetni_grad, ciljni_gradovi, udaljenosti, it_grada);
@@ -489,16 +560,25 @@ int main(int argc, char* argv[]) {
     else if (algoritam == "astar"){
         read_heuristic(file_heuristika, heuristika);
 
+        astar(pocetni_grad, ciljni_gradovi, udaljenosti, it_grada, heuristika,
+              found_solution, states_visited, path_length, total_cost, path);
+
+        dijkstra(ciljni_gradovi, udaljenosti, it_grada, ukupne_udaljenosti);
+
         if (check_optimistic){
             check_if_optimistic();
+            cout<<"# HEURISTIC-OPTIMISTIC "<<file_heuristika<<"\n";
+            for (auto & i : udaljenosti){
+                bool opt = false;
+                if (heuristika[i.naziv_grada] <= ukupne_udaljenosti[i.naziv_grada]) opt = true;
+                printf("[CONDITION]: [%s] h(%s) <= h*: %.1f <= %.1f\n ",(opt ? "OK" : "ERR") , i.naziv_grada.c_str(), heuristika[i.naziv_grada], ukupne_udaljenosti[i.naziv_grada]);
+            }
         }
 
         if (check_consistent){
             check_if_consistent();
         }
 
-        astar(pocetni_grad, ciljni_gradovi, udaljenosti, it_grada, heuristika,
-            found_solution, states_visited, path_length, total_cost, path);
         cout<<"# A-STAR "<<file_heuristika<<"\n";
         print_solution(found_solution, states_visited, path_length, total_cost, path);
     }

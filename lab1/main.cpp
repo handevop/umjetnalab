@@ -572,7 +572,6 @@ int main(int argc, char* argv[]) {
         if (check_optimistic || check_consistent) dijkstra(ciljni_gradovi, udaljenosti, it_grada, ukupne_udaljenosti);
 
         if (check_optimistic){
-            check_if_optimistic();
             bool postojalo = false;
             cout<<"# HEURISTIC-OPTIMISTIC "<<file_heuristika<<"\n";
             for (auto & i : udaljenosti){
@@ -588,7 +587,6 @@ int main(int argc, char* argv[]) {
         }
 
         if (check_consistent){
-            check_if_consistent();
             bool postojalo = false;
             cout<<"# HEURISTIC-CONSISTENT "<<file_heuristika<<"\n";
             for (auto & i : udaljenosti){

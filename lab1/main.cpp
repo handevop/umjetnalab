@@ -528,14 +528,6 @@ void dijkstra(vector<string>& end, vector<Gradovi>& udaljenosti, map<string, int
 
 }
 
-void check_if_optimistic(){
-
-}
-
-void check_if_consistent(){
-
-}
-
 int main(int argc, char* argv[]) {
     string algoritam;
     string file_udaljenosti;

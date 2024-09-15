@@ -228,6 +228,20 @@ void bfs(string& poc, vector<string>& end, vector<Gradovi>& udaljenosti, map<str
 
     while(!otvorena_lista.empty()){
         Grad trenutni_grad = otvorena_lista.front();
+
+        //cout<<trenutni_grad.naziv_grada<<"\n";
+        bool bio_f = false;
+
+        for (auto & j : zatvorena_lista){
+            if(j.naziv_grada == trenutni_grad.naziv_grada){
+                bio_f = true;
+                otvorena_lista.pop_front();
+                break;
+            }
+        }
+
+        if (bio_f) continue;
+
         for (auto & i : end){
             if ((string)(i) == (string)(trenutni_grad.naziv_grada)){
                 found_solution = true;
@@ -563,24 +577,50 @@ int main(int argc, char* argv[]) {
         astar(pocetni_grad, ciljni_gradovi, udaljenosti, it_grada, heuristika,
               found_solution, states_visited, path_length, total_cost, path);
 
-        dijkstra(ciljni_gradovi, udaljenosti, it_grada, ukupne_udaljenosti);
+        if (check_optimistic || check_consistent) dijkstra(ciljni_gradovi, udaljenosti, it_grada, ukupne_udaljenosti);
 
         if (check_optimistic){
             check_if_optimistic();
+            bool postojalo = false;
             cout<<"# HEURISTIC-OPTIMISTIC "<<file_heuristika<<"\n";
             for (auto & i : udaljenosti){
                 bool opt = false;
-                if (heuristika[i.naziv_grada] <= ukupne_udaljenosti[i.naziv_grada]) opt = true;
-                printf("[CONDITION]: [%s] h(%s) <= h*: %.1f <= %.1f\n ",(opt ? "OK" : "ERR") , i.naziv_grada.c_str(), heuristika[i.naziv_grada], ukupne_udaljenosti[i.naziv_grada]);
+                if (heuristika[i.naziv_grada] <= ukupne_udaljenosti[i.naziv_grada]){
+                    opt = true;
+                    postojalo = true;
+                }
+                printf("[CONDITION]: [%s] h(%s) <= h(s) + c: %.1f <= %.1f\n",(opt ? "OK" : "ERR") , i.naziv_grada.c_str(), heuristika[i.naziv_grada], ukupne_udaljenosti[i.naziv_grada]);
             }
+
+            cout<<"[CONCLUSION]: Heuristic "<<(postojalo ? "is not": "is")<<" optimistic.";
         }
 
         if (check_consistent){
             check_if_consistent();
+            bool postojalo = false;
+            cout<<"# HEURISTIC-CONSISTENT "<<file_heuristika<<"\n";
+            for (auto & i : udaljenosti){
+                bool opt = false;
+
+                for (auto & j : i.udaljenosti) {
+                    opt = false;
+                    if (heuristika[i.naziv_grada] <= heuristika[j.naziv_grada] + j.tezina_grada) {
+                        opt = true;
+                        postojalo = true;
+                    }
+                    printf("[CONDITION]: [%s] h(%s) <= h(%s) + c: %.1f <= %.1f + %.1f\n",
+                           (opt ? "OK" : "ERR"), i.naziv_grada.c_str(), j.naziv_grada.c_str(),
+                           heuristika[i.naziv_grada], heuristika[j.naziv_grada], j.tezina_grada);
+                }
+            }
+
+            cout<<"[CONCLUSION]: Heuristic "<<(postojalo ? "is not": "is")<<" consistent.";
         }
 
-        cout<<"# A-STAR "<<file_heuristika<<"\n";
-        print_solution(found_solution, states_visited, path_length, total_cost, path);
+        if (!check_optimistic && !check_consistent) {
+            cout << "# A-STAR " << file_heuristika << "\n";
+            print_solution(found_solution, states_visited, path_length, total_cost, path);
+        }
     }
 
 

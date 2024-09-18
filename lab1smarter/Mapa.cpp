@@ -33,6 +33,7 @@ void Mapa::load_city_names(const string& file_name) {
             string city_name, empty;
             parse_line(line, ":", city_name, empty);
             cities.emplace_back(it - 2, city_name);
+            city_id[city_name] = it - 2;
         }
 
         it++;
@@ -82,65 +83,83 @@ void Mapa::load_heuristic(const string& file_name) {
     file.close();
 }
 void Mapa::load_connections(const string& file_name) {
-    fstream file(file_name);
+    ifstream file(file_name, std::ios::binary | std::ios::ate);
+    streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
 
-    if (!file.is_open()){
-        cerr << "Error opening the file!" << endl;
-        return;
-    }
-
-    string line;
-    int it = 0;
-
-    while(getline(file, line)){
-        if (line.empty()) continue;
-        auto first_char_poz = line.find_first_not_of(' ');
-        if (first_char_poz != string::npos) {
-            if (line[first_char_poz] == '#'){
+    vector<char> buffer(size);
+    if (file.read(buffer.data(), size)){
+        int faze = 0; //fazes 0 - start_city, 1 - end_cities, 2 - city_names 3 - skip because comments
+        int last_faze = 0;
+        string curr_name;
+        curr_name = "";
+        for (char i : buffer){
+            if (curr_name.length() == 0 && i == '#'){
+                last_faze = faze;
+                faze = 3;
                 continue;
             }
-        }
-        //trimming line
-        line = line.substr(first_char_poz, line.find_last_not_of(' ') + 1);
+            if (i == '\n') {
+                if (faze == 0){
+                    auto poz_start = find_city_by_name(curr_name);
+                    start_city = (int)(poz_start - cities.begin());
+                    faze = 1;
+                    curr_name = "";
+                    continue;
+                }
+                else if (faze == 1){
+                    string line_end_cities = curr_name;
 
-        if (it == 0){
-            auto poz_start = find_city_by_name(line);
-            start_city = (int)(poz_start - cities.begin());
-        }
-        else if (it == 1){
-            string line_end_cities = line;
+                    while(!line_end_cities.empty()){
+                        string end_city;
+                        parse_line(line_end_cities, " ", end_city, line_end_cities);
+                        auto poz_end = find_city_by_name(end_city);
+                        end_cities.push_back((int)(poz_end - cities.begin()));
+                    }
 
-            while(!line_end_cities.empty()){
-                string end_city;
-                parse_line(line_end_cities, " ", end_city, line_end_cities);
-                auto poz_end = find_city_by_name(end_city);
-                end_cities.push_back((int)(poz_end - cities.begin()));
+                    curr_name = "";
+                    faze = 2;
+                    continue;
+                }
+                else if (faze == 2){
+                    string city_name, neighbours;
+                    parse_line(curr_name, ": ", city_name, neighbours);
+                    vector<pair<int, double>> load_neighbours;
+
+                    while (!neighbours.empty()) {
+                        string city, value;
+                        parse_line(neighbours, ",", city, neighbours);
+                        parse_line(neighbours, " ", value, neighbours);
+
+//                        auto poz_city = find_city_by_name(city);
+//                        int poz_city_int = (int) (poz_city - cities.begin());
+
+                        int poz_city_int = city_id[city];
+                        double value_double = stod(value);
+
+                        load_neighbours.emplace_back(poz_city_int, value_double);
+                    }
+
+                    sort(load_neighbours.begin(), load_neighbours.end(),
+                         [this](pair<int, double> g1, pair<int, double> g2) {
+                             return cities[g1.first].getNaziv() < cities[g2.first].getNaziv();
+                         });
+
+                    connections.push_back(load_neighbours);
+
+                    curr_name = "";
+                    continue;
+                }
+                else{ // if # that means line is comment, so it does not go in program
+                    faze = last_faze;
+                    curr_name = "";
+                    continue;
+                }
             }
-
+            curr_name += i;
         }
-        else{
-            string city_name, neighbours;
-            parse_line(line, ": ", city_name, neighbours);
-            vector<pair<int,double>> load_neighbours;
-
-            while(!neighbours.empty()){
-                string city, value;
-                parse_line(neighbours, ",", city, neighbours);
-                parse_line(neighbours, " ", value, neighbours);
-
-                auto poz_city = find_city_by_name(city);
-                int poz_city_int = (int)(poz_city - cities.begin());
-                double value_double = stod(value);
-
-                load_neighbours.emplace_back(poz_city_int, value_double);
-            }
-
-            connections.push_back(load_neighbours);
-        }
-
-        it++;
     }
-    file.close();
+
 }
 
 //print functions

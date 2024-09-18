@@ -1,6 +1,6 @@
 #ifndef LAB1SMARTER_MAPA_H
 #define LAB1SMARTER_MAPA_H
-#include <vector>
+#include <bits/stdc++.h>
 #include "Grad.h"
 
 class Mapa {
@@ -9,6 +9,7 @@ private:
     std::vector<int> end_cities;
     std::vector<Grad> cities;
     std::vector< std::vector< std::pair<int, double>>> connections;
+    std::map<std::string, int> city_id;
 
 public:
     Mapa() : start_city(0){};

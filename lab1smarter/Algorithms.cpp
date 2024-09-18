@@ -34,12 +34,13 @@ void Algorithms::BFS(int start, const vector<int>& end, vector<vector<pair<int, 
         }
 
         if (found_solution) break;
-        sort(connections[curr_poz].begin(), connections[curr_poz].end(), [&cities](const pair<int, double>& g1, const pair<int, double>& g2){
-            return cities[g1.first].getNaziv() < cities[g2.first].getNaziv();
-        });
 
         for (auto & connection : connections[curr_poz]){
             if (bio[connection.first]) continue;
+            auto poz_open = find_if(open_list.begin(), open_list.end(), [&connection](pair<int, double> p1){
+                return p1.first == connection.first;
+            });
+            if (poz_open != open_list.end()) continue;
             open_list.emplace_back(connection.first, connection.second + curr_value);
             parents[connection.first] = curr_poz;
         }

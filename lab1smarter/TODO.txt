@@ -1,0 +1,6 @@
+1. Test solution if algorithms work perfectly.
+2. Check astar closed list algorithm if necessary check for faster route to override it.
+3. Add algorithm for testing weights starting from end to all others to find real path weights.
+4. Based on that create algorithm for testing heuristic optimistic and consistency.
+
+TODO basicly just add map that connects name of city with iterator and use that in solution for load connections

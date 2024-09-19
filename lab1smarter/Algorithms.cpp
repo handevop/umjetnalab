@@ -86,13 +86,14 @@ void Algorithms::UCS(int start, const vector<int>& end, vector<vector<pair<int, 
 
         for (auto & connection : connections[curr_poz]){
             if (bio[connection.first]) continue;
-            open_list.emplace_back(connection.first, connection.second + curr_value);
+
+            auto poz_to_insert = std::lower_bound(open_list.begin(), open_list.end(), connection.second + curr_value,
+            [](const pair<int,double>& a, double b) {
+                return a.second < b;
+            });
+            open_list.insert(poz_to_insert, make_pair(connection.first, connection.second + curr_value));
             parents[connection.first] = curr_poz;
         }
-
-        sort(open_list.begin(), open_list.end(), [&cities](const pair<int, double>& g1, const pair<int, double>& g2){
-           return (g1.second == g2.second ? cities[g1.first].getNaziv() < cities[g2.first].getNaziv(): g1.second < g2.second);
-        });
     }
 
     if (found_solution){

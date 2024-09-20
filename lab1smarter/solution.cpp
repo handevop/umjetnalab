@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
         mapa.load_connections(file);
 
         Algorithms bfs = Algorithms(mapa.get_number_of_cities());
-        bfs.BFS(mapa.get_start(), mapa.get_end(), mapa.getConnections(), mapa.getCities());
+        bfs.BFS(mapa.get_start(), mapa.get_end(), mapa.getConnections());
         bfs.print_solution("BFS", "", mapa.getCities());
     }
     else if (algorithm == "ucs"){
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
         mapa.load_connections(file);
 
         Algorithms ucs = Algorithms(mapa.get_number_of_cities());
-        ucs.UCS(mapa.get_start(), mapa.get_end(), mapa.getConnections(), mapa.getCities());
+        ucs.UCS(mapa.get_start(), mapa.get_end(), mapa.getConnections());
         ucs.print_solution("UCS", "", mapa.getCities());
     }
     else if (algorithm == "astar"){
@@ -58,8 +58,24 @@ int main(int argc, char* argv[]) {
         mapa.load_heuristic(file_heuristic); // calling with astar only
 
         Algorithms astar = Algorithms(mapa.get_number_of_cities());
-        astar.UCS(mapa.get_start(), mapa.get_end(), mapa.getConnections(), mapa.getCities());
+        astar.ASTAR(mapa.get_start(), mapa.get_end(), mapa.getConnections(), mapa.getCities());
         astar.print_solution("ASTAR", file_heuristic, mapa.getCities());
+    }
+    else if (check_consistent){
+        mapa.load_city_names(file);
+        mapa.load_connections(file);
+        mapa.load_heuristic(file_heuristic); // calling with astar only
+
+        Algorithms cc = Algorithms(mapa.get_number_of_cities());
+        cc.CC(file_heuristic, mapa.getConnections(), mapa.getCities());
+    }
+    else if (check_optimistic){
+        mapa.load_city_names(file);
+        mapa.load_connections(file);
+        mapa.load_heuristic(file_heuristic); // calling with astar only
+
+        Algorithms co = Algorithms(mapa.get_number_of_cities());
+        co.CO(file_heuristic, mapa.get_end(), mapa.getConnections(), mapa.getCitiesInstance());
     }
 }
 

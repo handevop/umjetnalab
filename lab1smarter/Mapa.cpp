@@ -163,12 +163,13 @@ void Mapa::load_connections(const string& file_name) {
 }
 
 //print functions
-void Mapa::print_cities() const{
+[[maybe_unused]] void Mapa::print_cities() const{
     for (const auto& grad: cities){
         cout<<grad<<endl;
     }
 }
-void Mapa::print_connections() const {
+
+[[maybe_unused]] void Mapa::print_connections() const {
     for (const auto & connection : connections){
         for (int j = 0; j < connection.size(); j++){
             cout<<"pair: ("<<connection[j].first<<", "<<connection[j].second<<")";
@@ -182,6 +183,11 @@ void Mapa::print_connections() const {
 const std::vector<Grad> &Mapa::getCities() {
     return cities;
 }
+
+std::vector<Grad> &Mapa::getCitiesInstance() {
+    return cities;
+}
+
 vector<vector<pair<int, double>>> Mapa::getConnections() {
     return connections;
 }
@@ -195,11 +201,11 @@ int Mapa::get_number_of_cities() {
     return (int)cities.size();
 }
 
-void Mapa::print_start_city() const {
+[[maybe_unused]] void Mapa::print_start_city() const {
     cout<<"Start city id: "<<start_city<<", City description: "<<cities[start_city]<<"\n";
 }
 
-void Mapa::print_end_cities() const {
+[[maybe_unused]] void Mapa::print_end_cities() const {
     for (int end_city : end_cities){
         cout<<"End city id: "<<end_city<<", City description: "<<cities[end_city]<<"\n";
     }

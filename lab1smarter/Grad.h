@@ -23,7 +23,11 @@ public:
     void set_heuristic_value(int load_heuristic);
 
     [[nodiscard]] const std::string &getNaziv() const;
-    [[nodiscard]] long getHeuristic() const;
+    [[nodiscard]] long double getHeuristic() const;
+
+    [[nodiscard]] double getRealPrice() const;
+
+    void setRealPrice(double realPrice);
 
     friend std::ostream &operator<<(std::ostream &os, const Grad &grad);
 };

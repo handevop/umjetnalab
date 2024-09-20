@@ -21,10 +21,10 @@ public:
     static void parse_line(const std::string &line, const std::string& delimiter, std::string& before, std::string& after);
 
     //print functions
-    void print_cities() const;
-    void print_connections() const;
-    void print_start_city() const;
-    void print_end_cities() const;
+    [[maybe_unused]] void print_cities() const;
+    [[maybe_unused]] void print_connections() const;
+    [[maybe_unused]] void print_start_city() const;
+    [[maybe_unused]] void print_end_cities() const;
 
     //do
     void load_city_names(const std::string& file_name);
@@ -36,6 +36,7 @@ public:
     std::vector<int> get_end();
 
     const std::vector<Grad> &getCities();
+    std::vector<Grad> &getCitiesInstance();
     std::vector<std::vector<std::pair<int, double>>> getConnections();
     int get_number_of_cities();
 };
